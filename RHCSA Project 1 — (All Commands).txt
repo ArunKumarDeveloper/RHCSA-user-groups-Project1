@@ -22,11 +22,14 @@ lsblk
 
 STEP 4 — LVM Setup
 
-pvcreate /dev/sdb1 pvs
+pvcreate /dev/sdb1 
+pvs
 
-vgcreate DataVG /dev/sdb1 vgs
+vgcreate DataVG /dev/sdb1 
+vgs
 
-lvcreate -L 5G -n FilesLV DataVG lvs
+lvcreate -L 5G -n FilesLV DataVG 
+lvs
 
 STEP 5 — Filesystem and Mount
 
@@ -98,5 +101,6 @@ mkdir /backup crontab -e
 
 add:
 */5 * * * * tar -czf /backup/files_backup.tar.gz /data/files
+
 
 crontab -l
