@@ -1,0 +1,102 @@
+RHCSA Project 1 — (All Commands)
+STEP 1 create  User & Storage 
+STEP 2 — Verify Disk
+
+lsblk 
+
+STEP 3 — Partition Disk
+
+fdisk /dev/sdb
+
+inside fdisk:
+n
+p
+1
+ENTER
+ENTER
+t
+8e
+w
+
+lsblk
+
+STEP 4 — LVM Setup
+
+pvcreate /dev/sdb1 pvs
+
+vgcreate DataVG /dev/sdb1 vgs
+
+lvcreate -L 5G -n FilesLV DataVG lvs
+
+STEP 5 — Filesystem and Mount
+
+mkfs.ext4 /dev/DataVG/FilesLV 
+mkdir -p /data/files 
+mount /dev/DataVG/FilesLV /data/files
+df -h
+
+vim /etc/fstab
+
+add:
+/dev/DataVG/FilesLV /data/files ext4 defaults 0 0
+
+mount -a
+
+STEP 6 — Groups
+
+groupadd devgrp 
+groupadd hrgrp
+ groupadd financegrp 
+getent group devgrp
+
+STEP 7 — Users
+
+useradd -m devuser1
+ useradd -m devuser2
+ useradd -m hruser1
+ useradd -m finuser1
+
+passwd devuser1 
+passwd -------(for all users)
+
+STEP 8 — Add Users to Groups
+
+usermod -aG devgrp devuser1
+ usermod -aG devgrp devuser2
+ usermod -aG hrgrp hruser1
+ usermod -aG financegrp finuser1
+
+id devuser1
+
+STEP 9 — Department Directories
+
+mkdir /data/files/dev 
+mkdir /data/files/hr 
+mkdir /data/files/finance
+
+STEP 10 — Ownership
+
+chown :devgrp /data/files/dev 
+chown :hrgrp /data/files/hr 
+chown :financegrp /data/files/finance
+
+STEP 11 — Permissions (setgid)
+
+chmod 2770 /data/files/dev
+ chmod 2770 /data/files/hr
+ chmod 2770 /data/files/finance
+
+ls -ld /data/files/*
+
+STEP 12 — Test Permissions
+
+su - devuser1 => cd /data/files/dev =>  touch test.txt exit
+
+STEP 13 — Cron Backup
+
+mkdir /backup crontab -e
+
+add:
+*/5 * * * * tar -czf /backup/files_backup.tar.gz /data/files
+
+crontab -l
